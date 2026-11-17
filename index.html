@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>This Is Me - Lyam's Quiz</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+      color: #f8fafc;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .quiz-container {
+      background: #1e293b;
+      border: 2px solid #38bdf8;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      width: 100%;
+      max-width: 650px;
+      padding: 30px;
+      text-align: center;
+    }
+
+    h1 {
+      color: #38bdf8;
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      color: #94a3b8;
+      margin-bottom: 25px;
+      font-size: 1rem;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 10px;
+      background: #334155;
+      border-radius: 5px;
+      margin-bottom: 25px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: #38bdf8;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .question-text {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+      color: #fff;
+    }
+
+    .options-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 25px;
+    }
+
+    .option-btn {
+      background: #334155;
+      color: #f8fafc;
+      border: 2px solid transparent;
+      padding: 14px 20px;
+      border-radius: 10px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: left;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      background: #475569;
+      border-color: #38bdf8;
+    }
+
+    .option-btn.correct {
+      background: #166534;
+      border-color: #22c55e;
+      color: #fff;
+    }
+
+    .option-btn.wrong {
+      background: #991b1b;
+      border-color: #ef4444;
+      color: #fff;
+    }
+
+    .option-btn:disabled {
+      cursor: default;
+    }
+
+    .next-btn, .restart-btn {
+      background: #38bdf8;
+      color: #0f172a;
+      border: none;
+      padding: 12px 28px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+      display: none;
+    }
+
+    .next-btn:hover, .restart-btn:hover {
+      background: #0284c7;
+      color: #fff;
+    }
+
+    .result-box {
+      display: none;
+    }
+
+    .score-display {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: #38bdf8;
+      margin: 15px 0;
+    }
+
+    .feedback-text {
+      font-size: 1.1rem;
+      color: #cbd5e1;
+      margin-bottom: 25px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="quiz-container">
+    <h1>🏸 This Is Me: Lyam's Quiz 💻</h1>
+    <p class="subtitle">Did you listen carefully to my presentation? Let's find out!</p>
+
+    <div id="quiz-box">
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress"></div>
+      </div>
+      <div class="question-text" id="question">Question goes here</div>
+      <div class="options-grid" id="options"></div>
+      <button class="next-btn" id="next-btn">Next Question ➔</button>
+    </div>
+
+    <div class="result-box" id="result-box">
+      <h2>Quiz Completed! 🎉</h2>
+      <div class="score-display" id="score">0 / 8</div>
+      <p class="feedback-text" id="feedback"></p>
+      <button class="restart-btn" id="restart-btn" style="display: inline-block;">Play Again 🔄</button>
+    </div>
+  </div>
+
+  <script>
+    const quizData = [
+      {
+        question: "1. When was I born?",
+        options: [
+          "November 8th, 2012",
+          "December 8th, 2013",
+          "November 18th, 2012",
+          "October 8th, 2011"
+        ],
+        correct: 0
+      },
+      {
+        question: "2. What year was my younger brother born?",
+        options: [
+          "2017",
+          "2018",
+          "2019",
+          "2020"
+        ],
+        correct: 2
+      },
+      {
+        question: "3. How long have I been playing Badminton in a club?",
+        options: [
+          "6 months",
+          "1 year",
+          "1 and a half year",
+          "3 years"
+        ],
+        correct: 2
+      },
+      {
+        question: "4. Which of these is NOT one of my hobbies?",
+        options: [
+          "Playing video games a lot",
+          "Technology (robots, PC, consoles)",
+          "Sleeping and Running",
+          "Collecting stamps"
+        ],
+        correct: 3
+      },
+      {
+        question: "5. Where is my PC located in my bedroom?",
+        options: [
+          "Next to the window",
+          "Under my bunk bed",
+          "In the living room",
+          "On a big gaming table"
+        ],
+        correct: 1
+      },
+      {
+        question: "6. What can you find a lot of in my room?",
+        options: [
+          "Books",
+          "Lego",
+          "Musical instruments",
+          "Trophies"
+        ],
+        correct: 1
+      },
+      {
+        question: "7. What average grade do I need to become a hardware engineer?",
+        options: [
+          "14 / 20",
+          "15 / 20",
+          "16.5 / 20",
+          "18 / 20"
+        ],
+        correct: 2
+      },
+      {
+        question: "8. What is my ultimate dream with my cousin?",
+        options: [
+          "To open a badminton club",
+          "To become an e-sport player",
+          "To build a giant robot",
+          "To travel around the world"
+        ],
+        correct: 1
+      }
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+
+    const questionEl = document.getElementById("question");
+    const optionsEl = document.getElementById("options");
+    const nextBtn = document.getElementById("next-btn");
+    const progressEl = document.getElementById("progress");
+    const quizBox = document.getElementById("quiz-box");
+    const resultBox = document.getElementById("result-box");
+    const scoreEl = document.getElementById("score");
+    const feedbackEl = document.getElementById("feedback");
+    const restartBtn = document.getElementById("restart-btn");
+
+    function loadQuestion() {
+      nextBtn.style.display = "none";
+      const currentData = quizData[currentQuestion];
+      questionEl.textContent = currentData.question;
+      optionsEl.innerHTML = "";
+
+      const progressPercent = ((currentQuestion) / quizData.length) * 100;
+      progressEl.style.width = progressPercent + "%";
+
+      currentData.options.forEach((option, index) => {
+        const button = document.createElement("button");
+        button.textContent = option;
+        button.classList.add("option-btn");
+        button.addEventListener("click", () => selectOption(button, index));
+        optionsEl.appendChild(button);
+      });
+    }
+
+    function selectOption(selectedBtn, selectedIndex) {
+      const correctIndex = quizData[currentQuestion].correct;
+      const allButtons = optionsEl.querySelectorAll(".option-btn");
+
+      allButtons.forEach((btn, idx) => {
+        btn.disabled = true;
+        if (idx === correctIndex) {
+          btn.classList.add("correct");
+        } else if (idx === selectedIndex && selectedIndex !== correctIndex) {
+          btn.classList.add("wrong");
+        }
+      });
+
+      if (selectedIndex === correctIndex) {
+        score++;
+      }
+
+      nextBtn.style.display = "inline-block";
+    }
+
+    nextBtn.addEventListener("click", () => {
+      currentQuestion++;
+      if (currentQuestion < quizData.length) {
+        loadQuestion();
+      } else {
+        showResults();
+      }
+    });
+
+    function showResults() {
+      progressEl.style.width = "100%";
+      quizBox.style.display = "none";
+      resultBox.style.display = "block";
+      scoreEl.textContent = `${score} / ${quizData.length}`;
+
+      if (score === quizData.length) {
+        feedbackEl.textContent = "100%! You know everything about me! Now give me a 20/20 please! 😄";
+      } else if (score >= 5) {
+        feedbackEl.textContent = "Great job! You listened very well to my presentation! 👏";
+      } else {
+        feedbackEl.textContent = "Nice try, but you need to pay more attention next time! 😉";
+      }
+    }
+
+    restartBtn.addEventListener("click", () => {
+      currentQuestion = 0;
+      score = 0;
+      resultBox.style.display = "none";
+      quizBox.style.display = "block";
+      loadQuestion();
+    });
+
+    loadQuestion();
+  </script>
+</body>
+</html>
